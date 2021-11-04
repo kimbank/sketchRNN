@@ -18,7 +18,7 @@ function modelReady(){
 
 function setup(){
   canvas = createCanvas(600, 400)
-  canvas.mouse.Pressed(resetDrawing)
+  canvas.mousePressed(resetDrawing)
   canvas.mouseReleased(startSketchRNN)
 
   background(234)
