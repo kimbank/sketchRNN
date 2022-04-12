@@ -1,73 +1,195 @@
-let model
-let previousPen = "down"
-let x, y
+let drawbot;
+let p_pen = 'down';
+let x, y;
+let newDrawPoint;
+let seed = [];
+let canvas;
 
-let strokePath
-let seedStrokes = []
-
-let canvas
-
-
-function preload(){
-  model = ml5.sketchRNN("hand",modelReady)
+function setup() {
+  canvas = createCanvas(640, 480);
+  canvas.hide();
+  sel = createSelect();
+  for(let i=0; i<models.length; i++){
+    sel.option(models[i]);
+  }
+  sel.selected('bus');
+  sel.position(10, 65);
+  sel.changed(model_reload);
+  drawbot = ml5.sketchRNN(sel.value(), modelReady);  
+  cls_btn = createButton('다시 그리기');
+  cls_btn.mousePressed(clearCanvas);
+  background(220);  
 }
 
-function modelReady(){
-  console.log('model is ready.')
+function modelReady() {
+  canvas.show();
+  canvas.mouseReleased(startDrawbot);
 }
 
-function setup(){
-  canvas = createCanvas(600, 400)
-  canvas.mousePressed(resetDrawing)
-  canvas.mouseReleased(startSketchRNN)
-
-  background(234)
-
-  model.generate(seedStrokes,gotStroke)
+function model_reload(){
+  drawbot = ml5.sketchRNN(sel.value(), modelReady);  
 }
 
-function gotStroke(err,result){
-  strokePath = result
+function clearCanvas() {
+  background(220);
+  seed = [];
+  drawbot.reset();
 }
 
-function resetDrawing(){
-  seedStrokes = []
-  model.reset()
+function startDrawbot() {
+  x = mouseX;
+  y = mouseY;
+  drawbot.generate(seed, gotStroke);
 }
 
-function startSketchRNN(){
-  x = mouseX
-  y = mouseY
-  model.generate(seedStrokes,gotStroke)
-}
+function draw() {
+  if (mouseIsPressed) {
+    stroke(255,0,0);
+    strokeWeight(10);
+    line(pmouseX, pmouseY, mouseX, mouseY);
 
-function draw(){
-  if(mouseIsPressed){
-    strokePath(0,225,0)
-    strokeWeight(6)
-    AudioListener(pmouseX,pmouseY,mouseX,mouseY)
-
-    const userStroke={
-      dx : mouseX - pmouseX,
-      dy : mouseY - pmouseY,
-      pen : "down"
-    }
-    seedStrokes.push(userStroke)
+    let drawPoint = {
+      dx: mouseX - pmouseX,
+      dy: mouseY - pmouseY,
+      pen: 'down'
+    };
+    seed.push(drawPoint);
   }
 
-  if(strokePath){
-    if(previousPen == "down"){
-      stroke(0)
-      strokeWeight(6)
-      line(x,y,x+strokePath.dx,y+strokePath.dy)
+  if (newDrawPoint) {
+    if (p_pen == 'down') {
+      stroke(0);
+      strokeWeight(2);
+      line(x, y, x + newDrawPoint.dx, y + newDrawPoint.dy);
     }
-    x += strokePath.dx
-    y += strokePath.dy
-    previousPen = strokePath.pen
+    x += newDrawPoint.dx;
+    y += newDrawPoint.dy;
+    p_pen = newDrawPoint.pen;
 
-    if(strokePath.pen !== "end"){
-      strokePath = null
-      model.generate(gotStroke)
+    if (newDrawPoint !== 'end') {
+      newDrawPoint = null;
+      drawbot.generate(gotStroke);
     }
   }
 }
+
+function gotStroke(err, s) {
+  newDrawPoint = s;
+}
+
+const models = [
+  'alarm_clock',
+  'ambulance',
+  'angel',
+  'ant',
+  'antyoga',
+  'backpack',
+  'barn',
+  'basket',
+  'bear',
+  'bee',
+  'beeflower',
+  'bicycle',
+  'bird',
+  'book',
+  'brain',
+  'bridge',
+  'bulldozer',
+  'bus',
+  'butterfly',
+  'cactus',
+  'calendar',
+  'castle',
+  'cat',
+  'catbus',
+  'catpig',
+  'chair',
+  'couch',
+  'crab',
+  'crabchair',
+  'crabrabbitfacepig',
+  'cruise_ship',
+  'diving_board',
+  'dog',
+  'dogbunny',
+  'dolphin',
+  'duck',
+  'elephant',
+  'elephantpig',
+  'eye',
+  'face',
+  'fan',
+  'fire_hydrant',
+  'firetruck',
+  'flamingo',
+  'flower',
+  'floweryoga',
+  'frog',
+  'frogsofa',
+  'garden',
+  'hand',
+  'hedgeberry',
+  'hedgehog',
+  'helicopter',
+  'kangaroo',
+  'key',
+  'lantern',
+  'lighthouse',
+  'lion',
+  'lionsheep',
+  'lobster',
+  'map',
+  'mermaid',
+  'monapassport',
+  'monkey',
+  'mosquito',
+  'octopus',
+  'owl',
+  'paintbrush',
+  'palm_tree',
+  'parrot',
+  'passport',
+  'peas',
+  'penguin',
+  'pig',
+  'pigsheep',
+  'pineapple',
+  'pool',
+  'postcard',
+  'power_outlet',
+  'rabbit',
+  'rabbitturtle',
+  'radio',
+  'radioface',
+  'rain',
+  'rhinoceros',
+  'rifle',
+  'roller_coaster',
+  'sandwich',
+  'scorpion',
+  'sea_turtle',
+  'sheep',
+  'skull',
+  'snail',
+  'snowflake',
+  'speedboat',
+  'spider',
+  'squirrel',
+  'steak',
+  'stove',
+  'strawberry',
+  'swan',
+  'swing_set',
+  'the_mona_lisa',
+  'tiger',
+  'toothbrush',
+  'toothpaste',
+  'tractor',
+  'trombone',
+  'truck',
+  'whale',
+  'windmill',
+  'yoga',
+  'yogabicycle',
+  'everything',
+];
