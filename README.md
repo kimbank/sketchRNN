@@ -7,5 +7,4 @@
 
 <h1 align="center">Preview</h1>
 
-<!-- ![](https://user-images.githubusercontent.com/87305109/162878511-0c468eda-f11a-49af-804b-f5c0499737f7.gif) -->
 <div align="center"><img src="https://user-images.githubusercontent.com/87305109/162878511-0c468eda-f11a-49af-804b-f5c0499737f7.gif"/></div>
